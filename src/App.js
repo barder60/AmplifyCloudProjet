@@ -1,5 +1,7 @@
-import logo from './logo.svg';
+import { withAuthenticator } from 'aws-amplify-react'
+
 import './App.css';
+import logo from './logo.svg';
 
 function App() {
   return (
@@ -22,4 +24,4 @@ function App() {
   );
 }
 
-export default App;
+export default withAuthenticator(App, { includeGreetings: true })
