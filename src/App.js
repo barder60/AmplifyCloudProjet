@@ -1,4 +1,6 @@
+import 'bootstrap/dist/css/bootstrap.min.css';
 import React, { useEffect, useReducer, useState } from 'react'
+import Button from 'react-bootstrap/Button';
 import { API, graphqlOperation } from 'aws-amplify'
 import { withAuthenticator } from 'aws-amplify-react'
 import { listCoins } from './graphql/queries'
@@ -6,17 +8,14 @@ import { createCoin as CreateCoin } from './graphql/mutations'
 import { onCreateCoin } from './graphql/subscriptions'
 import { Storage } from 'aws-amplify'
 
-// import uuid to create a unique client ID
 import uuid from 'uuid/v4'
 
 const CLIENT_ID = uuid()
 
-// create initial state
 const initialState = {
     name: '', price: '', symbol: '', coins: []
 }
 
-// create reducer to update state
 function reducer(state, action) {
     switch(action.type) {
         case 'SETCOINS':
@@ -30,8 +29,6 @@ function reducer(state, action) {
             return state
     }
 }
-
-
 
 function App() {
     const [state, dispatch] = useReducer(reducer, initialState)
@@ -47,11 +44,6 @@ function App() {
         })
         return () => subscription.unsubscribe()
     }, [])
-
-    function readFromStorage() {
-        const data = Storage.list('javascript/')
-        console.log('data from S3: ', data)
-    }
 
     async function createCoin() {
         const { name, price, symbol } = state
@@ -71,8 +63,6 @@ function App() {
         }
     }
 
-
-    // change state then user types into input
     function onChange(e) {
         dispatch({ type: 'SETINPUT', key: e.target.name, value: e.target.value })
     }
@@ -82,21 +72,21 @@ function App() {
         updateImage(imagePath)
     }
 
-    this.loadImage = async function (e) {
+    async function loadImage (e) {
         const file = e.target.files[0];
         await Storage.put('example.png', file)
         console.log('image successfully stored!')
     }
-    // add UI with event handlers to manage user input
+
     return (
         <div>
             <div>
                 <img src={imageUrl} />
-                <button onClick={fetchImage}>Fetch Image</button>
+                <Button onClick={fetchImage}>Fetch Image</Button>
             </div>
             <input
                 type="file" accept='image'
-                onChange={(e) => this.loadImage(e)}
+                onChange={(e) => loadImage(e)}
             />
             <input
                 name='name'
@@ -116,7 +106,7 @@ function App() {
                 onChange={onChange}
                 value={state.symbol}
             />
-            <button onClick={createCoin}>Create Coin</button>
+            <Button onClick={createCoin}>Create Coin</Button>
             {
                 state.coins.map((c, i) => (
                     <div key={i}>
