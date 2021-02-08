@@ -51,5 +51,11 @@
       "service": "Lambda",
       "dependsOn": []
     }
+  },
+  "storage": {
+    "ApiName": {
+      "service": "S3",
+      "providerPlugin": "awscloudformation"
+    }
   }
 }
