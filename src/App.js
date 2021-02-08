@@ -3,6 +3,7 @@ import { API, graphqlOperation } from 'aws-amplify'
 import { withAuthenticator } from 'aws-amplify-react'
 import { listCoins } from './graphql/queries'
 import { createCoin as CreateCoin } from './graphql/mutations'
+import { onCreateCoin } from './graphql/subscriptions'
 
 // import uuid to create a unique client ID
 import uuid from 'uuid/v4'
@@ -21,27 +22,29 @@ function reducer(state, action) {
             return { ...state, coins: action.coins }
         case 'SETINPUT':
             return { ...state, [action.key]: action.value }
+        // new 👇
+        case 'ADDCOIN':
+            return { ...state, coins: [...state.coins, action.coin] }
         default:
             return state
     }
 }
 
+
+
 function App() {
     const [state, dispatch] = useReducer(reducer, initialState)
 
     useEffect(() => {
-        getData()
+        const subscription = API.graphql(graphqlOperation(onCreateCoin)).subscribe({
+            next: (eventData) => {
+                const coin = eventData.value.data.onCreateCoin
+                if (coin.clientId === CLIENT_ID) return
+                dispatch({ type: 'ADDCOIN', coin  })
+            }
+        })
+        return () => subscription.unsubscribe()
     }, [])
-
-    async function getData() {
-        try {
-            const coinData = await API.graphql(graphqlOperation(listCoins))
-            console.log('data from API: ', coinData)
-            dispatch({ type: 'SETCOINS', coins: coinData.data.listCoins.items})
-        } catch (err) {
-            console.log('error fetching data..', err)
-        }
-    }
 
     async function createCoin() {
         const { name, price, symbol } = state
